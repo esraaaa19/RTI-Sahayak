@@ -1,8 +1,4 @@
 // server-groq.js
-// Same logic as server.js, but calls Groq's free OpenAI-compatible API instead
-// of Anthropic's. Get a free key at https://console.groq.com/keys — no card required.
-// Run: node server-groq.js
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -16,22 +12,14 @@ app.use(express.static(__dirname));
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/RTI_Sahayak_FrontendFinal (1).html');
 });
-app.use(express.static(__dirname));
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/RTI_Sahayak_FrontendFinal (1).html');
-});
 
 const API_KEY = process.env.GROQ_API_KEY;
-const MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+const MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
 
 if (!API_KEY) {
-  console.warn('WARNING: GROQ_API_KEY is not set. Add it to .env (get a free key at console.groq.com/keys).');
+  console.warn('WARNING: GROQ_API_KEY is not set.');
 }
 
-// This is the only function that differs from the Anthropic version —
-// everything downstream (classifyGrievance, generateApplication, the route
-// handler) stays exactly the same because both return a plain text string.
 async function callClaude(systemPrompt, userPrompt) {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -63,6 +51,12 @@ function extractJson(text) {
   return JSON.parse(cleaned);
 }
 
+function normalizeCategory(rawCategory) {
+  if (!rawCategory) return 'unknown';
+  const key = String(rawCategory).trim().toLowerCase().replace(/[\s-]+/g, '_');
+  return Object.prototype.hasOwnProperty.call(ROUTING_TABLE, key) ? key : 'unknown';
+}
+
 async function classifyGrievance(grievanceText) {
   const categories = Object.keys(ROUTING_TABLE).filter(k => k !== 'unknown');
   const system = `You classify citizen grievances for RTI application drafting. Respond with ONLY a JSON object, no other text, no markdown fences.`;
@@ -71,15 +65,17 @@ async function classifyGrievance(grievanceText) {
 Given this grievance, output JSON with exactly these fields:
 - category: one of the categories above
 - information_sought: a 1-2 sentence plain restatement of exactly what status/information the applicant wants disclosed
-- missing_info: array of strings naming any of [name, location, timeframe] that seem essential but are not inferable from the text
+- missing_info: array of strings naming any of [name, address, location, timeframe, contact] that seem essential but are not inferable from the text
 
 Grievance: "${grievanceText}"`;
 
   const raw = await callClaude(system, user);
-  return extractJson(raw);
+  const result = extractJson(raw);
+  result.category = normalizeCategory(result.category);
+  return result;
 }
 
-async function generateApplication({ grievance, name, address, location, timeframe, contact, bpl, classification }) {
+async function generateApplication({ grievance, timeframe, classification }) {
   const routing = ROUTING_TABLE[classification.category] || ROUTING_TABLE.unknown;
   const portalNote = routing.isCentral
     ? 'This is a central government authority — mention in filing_note that the applicant may alternatively file via the RTI Online Portal (rtionline.gov.in).'
@@ -122,7 +118,7 @@ Output JSON with exactly these fields:
 
 app.post('/api/generate-rti', async (req, res) => {
   try {
-    const { grievance, name, location, timeframe } = req.body;
+    const { grievance, name, address, location, timeframe, contact, bpl } = req.body;
 
     if (!grievance || grievance.trim().length < 5) {
       return res.status(400).json({ error: 'grievance text is required' });
@@ -132,8 +128,10 @@ app.post('/api/generate-rti', async (req, res) => {
 
     const stillMissing = (classification.missing_info || []).filter(field => {
       if (field === 'name') return !name;
+      if (field === 'address') return !address;
       if (field === 'location') return !location;
       if (field === 'timeframe') return !timeframe;
+      if (field === 'contact') return !contact;
       return false;
     });
 
@@ -141,14 +139,14 @@ app.post('/api/generate-rti', async (req, res) => {
       return res.json({ needsClarification: true, missingFields: stillMissing });
     }
 
-    const application = await generateApplication({ grievance, name, location, timeframe, classification });
+    const application = await generateApplication({ grievance, timeframe, classification });
     const referenceNumber = 'RTI/2026/' + Math.floor(100000 + Math.random() * 900000);
 
     res.json({
       needsClarification: false,
       referenceNumber,
       category: classification.category,
-      authority: application.authority_display,
+      authority: (ROUTING_TABLE[classification.category] && ROUTING_TABLE[classification.category].authority) || 'The Public Information Officer of the concerned department (please specify when filing)',
       requestPoints: application.request_points,
       filingNote: application.filing_note,
     });
