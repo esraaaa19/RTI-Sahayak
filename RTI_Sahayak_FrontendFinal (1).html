@@ -1016,7 +1016,7 @@ stateInput.addEventListener('change', () => {
     document.getElementById('api-error').classList.remove('show');
     document.getElementById('document-wrap').style.display = 'none';
 
-       fetch('http:/api/generate-rti', {
+       fetch('/api/generate-rti', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
