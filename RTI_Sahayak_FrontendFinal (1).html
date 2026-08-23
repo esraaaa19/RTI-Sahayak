@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTI Sahayak — File an RTI without the paperwork headache</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+    --ink: #14231C;
+    --ink-2: #1C3126;
+    --ink-3: #2C4736;
+    --paper: #F6F1E0;
+    --paper-edge: #E8DFC4;
+    --stamp-blue: #8FB89C;
+    --stamp-blue-dark: #3F6B4F;
+    --seal-gold: #C9A46A;
+    --alert: #D97C73;
+    --text-dark: #EDEFE6;
+    --text-muted: #9FB0A2;
+    --text-paper: #24211B;
+    --radius: 5px;
+  }
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: radial-gradient(circle at 85% 10%, rgba(63, 107, 79, 0.18), transparent 32%), var(--ink);
+    color: var(--text-dark);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3 { font-family: 'Source Serif 4', Georgia, serif; margin: 0; }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ---- Left rail: case steps ---- */
+  .rail {
+    background: var(--ink-2);
+    padding: 40px 28px;
+    border-right: 1px solid var(--ink-3);
+  }
+
+  .rail-brand {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+  }
+
+  .rail-brand .mark { color: var(--seal-gold); }
+
+  .rail-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+  }
+
+  .steps { list-style: none; padding: 0; margin: 0; }
+
+  .step {
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    opacity: 0.45;
+    transition: opacity 0.2s ease;
+  }
+
+  .step.active, .step.done { opacity: 1; }
+
+  .step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step.active .step-num {
+    border-color: var(--seal-gold);
+    color: var(--seal-gold);
+  }
+
+  .step.done .step-num {
+    background: var(--stamp-blue-dark);
+    border-color: var(--stamp-blue-dark);
+    color: var(--text-dark);
+  }
+
+  .step-label { font-size: 0.9rem; padding-top: 3px; }
+
+  /* ---- Main panel ---- */
+  .main {
+    padding: 56px 64px;
+    max-width: 720px;
+    width: 100%;
+  }
+
+  .screen { display: none; animation: fade 0.3s ease; }
+  .screen.active { display: block; }
+
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--stamp-blue);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h2.screen-title { font-size: 1.8rem; line-height: 1.3; margin-bottom: 12px; }
+
+  .screen-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 32px;
+    max-width: 52ch;
+  }
+
+  textarea, input[type="text"], input[type="email"] {
+    width: 100%;
+    background: var(--ink);
+    border: 1px solid var(--ink-3);
+    border-radius: var(--radius);
+    color: var(--text-dark);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.95rem;
+    padding: 14px 16px;
+    resize: vertical;
+  }
+
+  textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
+    outline: 2px solid var(--seal-gold);
+    outline-offset: 1px;
+  }
+
+  textarea { min-height: 120px; }
+  select { width:100%; background:var(--ink); border:1px solid var(--ink-3); border-radius:var(--radius); color:var(--text-dark); font-family:'IBM Plex Sans',sans-serif; font-size:.95rem; padding:14px 16px; }
+  select:focus { outline:2px solid var(--seal-gold); outline-offset:1px; }
+  .field-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .phone-wrap { display:flex; width:100%; }
+  .phone-prefix { display:flex; align-items:center; padding:0 12px; background:var(--ink-2); border:1px solid var(--ink-3); border-right:none; border-radius:var(--radius) 0 0 var(--radius); color:var(--text-muted); font-family:'IBM Plex Mono',monospace; font-size:.9rem; }
+  .phone-wrap input { border-radius:0 var(--radius) var(--radius) 0 !important; }
+  @media (max-width:560px) { .field-row { grid-template-columns:1fr; gap:0; } }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .field { margin-bottom: 20px; }
+
+  .btn {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s ease, opacity 0.2s ease;
+  }
+
+  .btn:active { transform: scale(0.98); }
+
+  .btn-primary {
+    background: var(--seal-gold);
+    color: var(--ink);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--ink-3);
+  }
+
+  .btn-row { display: flex; gap: 12px; margin-top: 8px; }
+
+  .thinking {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--seal-gold);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* ---- The document: the signature moment ---- */
+  .document-wrap { margin-top: 8px; }
+
+  .document {
+    background: var(--paper);
+    color: var(--text-paper);
+    padding: 44px 40px 36px;
+    position: relative;
+    clip-path: polygon(
+      0% 1.5%, 3% 0%, 7% 1.2%, 11% 0%, 15% 1.4%, 19% 0.2%, 23% 1.6%, 27% 0%,
+      31% 1.2%, 35% 0.3%, 39% 1.5%, 43% 0%, 47% 1.3%, 51% 0.2%, 55% 1.6%,
+      59% 0%, 63% 1.2%, 67% 0.3%, 71% 1.5%, 75% 0%, 79% 1.3%, 83% 0.2%,
+      87% 1.6%, 91% 0%, 95% 1.2%, 100% 0.4%,
+      100% 100%, 0% 100%
+    );
+    box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+  }
+
+  .seal {
+    position: absolute;
+    top: 28px;
+    right: 32px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--stamp-blue-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-8deg);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem;
+    text-align: center;
+    line-height: 1.2;
+    color: var(--stamp-blue-dark);
+    opacity: 0.75;
+  }
+
+  .doc-ref {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: #75685A;
+    margin-bottom: 18px;
+  }
+
+  .doc-to { font-size: 0.9rem; margin-bottom: 4px; }
+  .doc-authority { font-weight: 600; margin-bottom: 24px; }
+
+  .doc-subject {
+    font-weight: 600;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+  }
+
+  .doc-body {
+    font-size: 0.92rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .doc-placeholder {
+    background: rgba(112, 69, 111, 0.12);
+    border-bottom: 1px dashed var(--stamp-blue-dark);
+    padding: 0 2px;
+  }
+
+  .doc-actions { display: flex; gap: 12px; margin-top: 28px; }
+
+  .filing-info {
+    margin-top: 24px;
+    background: var(--ink-2);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+
+  .filing-info strong { color: var(--text-dark); }
+
+
+  /* ---- Enhanced form controls ---- */
+  .hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 7px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .check-row {
+    display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px;
+    border: 1px solid var(--ink-3); border-radius: var(--radius);
+    background: rgba(255,255,255,0.02); cursor: pointer;
+  }
+  .check-row input { margin-top: 3px; accent-color: var(--seal-gold); }
+  .check-copy strong { display: block; color: var(--text-dark); font-size: .88rem; margin-bottom: 3px; }
+  .check-copy span { color: var(--text-muted); font-size: .78rem; }
+  .lang-toggle { display:flex; gap:4px; margin: -8px 0 22px; }
+  .lang-btn {
+    background: transparent; color: var(--text-muted); border: 1px solid var(--ink-3);
+    padding: 7px 11px; border-radius: 3px; cursor:pointer; font-size:.78rem;
+  }
+  .lang-btn.active { background: var(--ink-3); color: var(--text-dark); border-color: var(--seal-gold); }
+  .error {
+    display:none; margin: 0 0 18px; padding: 11px 13px; border-left: 3px solid var(--alert);
+    background: rgba(226,125,107,.09); color: #f0c5bc; font-size:.84rem;
+  }
+  .error.show { display:block; }
+  .success-note {
+    display:none; color: var(--stamp-blue); font-size:.84rem; margin-bottom:18px;
+  }
+  .success-note.show { display:block; }
+  .document { overflow-wrap:anywhere; }
+  .doc-header { padding-right: 70px; }
+  .doc-date { font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:#75685A; margin-bottom:22px; }
+  .doc-body { overflow-wrap:anywhere; }
+  .filing-grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:18px; }
+  .filing-card { background:rgba(255,255,255,.025); border:1px solid var(--ink-3); padding:14px; border-radius:var(--radius); }
+  .filing-card .k { font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:.06em; font-size:.68rem; color:var(--text-muted); margin-bottom:6px; }
+  .filing-card .v { color:var(--text-dark); font-size:.88rem; line-height:1.5; }
+  .next-steps { margin: 22px 0 0; padding-left: 20px; color: var(--text-muted); line-height:1.8; }
+  .next-steps strong { color:var(--text-dark); }
+  .disclaimer { margin-top:18px; font-size:.74rem; color:#7885a0; line-height:1.5; }
+  .btn-secondary { background: var(--ink-3); color: var(--text-dark); }
+  .btn-danger { background: transparent; color: var(--alert); border:1px solid rgba(226,125,107,.35); }
+  .btn:focus-visible, .lang-btn:focus-visible, .check-row:focus-within { outline:2px solid var(--seal-gold); outline-offset:2px; }
+  @media print {
+    body { background:#fff; color:#111; }
+    .rail, .doc-actions, .filing-info, .screen-desc, .eyebrow { display:none !important; }
+    .app { display:block; }
+    .main { max-width:none; padding:0; }
+    .screen { display:none !important; }
+    #screen-3 { display:block !important; }
+    #document-wrap { display:block !important; }
+    .document { box-shadow:none; clip-path:none; }
+  }
+
+  @media (max-width: 780px) {
+    .app { grid-template-columns: 1fr; }
+    .rail {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px;
+      border-right: none;
+      border-bottom: 1px solid var(--ink-3);
+    }
+    .rail-sub { display: none; }
+    .steps { display: flex; gap: 6px; }
+    .step-label { display: none; }
+    .main { padding: 32px 22px; }
+    .two-col, .filing-grid { grid-template-columns: 1fr; }
+    .document { padding: 34px 24px 30px; }
+    .seal { right: 18px; top: 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .screen, .dot { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="rail">
+    <div class="rail-brand"><span class="mark">&#9670;</span> RTI Sahayak</div>
+    <div class="rail-sub">Turn a complaint into a filed application</div>
+    <ul class="steps" id="steps">
+      <li class="step active" data-step="1"><span class="step-num">01</span><span class="step-label">Your problem</span></li>
+      <li class="step" data-step="2"><span class="step-num">02</span><span class="step-label">A few details</span></li>
+      <li class="step" data-step="3"><span class="step-num">03</span><span class="step-label">Your application</span></li>
+      <li class="step" data-step="4"><span class="step-num">04</span><span class="step-label">Where to send it</span></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+     <!-- Screen 0: landing -->
+<section class="screen active" id="screen-0">
+  <div class="eyebrow">RTI Sahayak</div>
+  <h2 class="screen-title">Bureaucracy shouldn't need a law degree.</h2>
+  <p class="screen-desc" style="max-width: 58ch;">
+    Describe your problem in plain language. We'll turn it into a properly
+    formatted RTI application addressed to the right department — ready to
+    file today.
+  </p>
+  <div class="filing-grid" style="margin: 28px 0 32px;">
+    <div class="filing-card"><div class="k">Step 1</div><div class="v">Tell us what's wrong</div></div>
+    <div class="filing-card"><div class="k">Step 2</div><div class="v">A few personal details</div></div>
+    <div class="filing-card"><div class="k">Step 3</div><div class="v">Get your drafted application</div></div>
+    <div class="filing-card"><div class="k">Step 4</div><div class="v">Know exactly where to send it</div></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" id="to-step-0-start">Get started</button>
+  </div>
+  <p class="disclaimer" style="margin-top: 20px;">No login, no fees to use this tool, no ID proof required to file an RTI itself.</p>
+</section>
+    <!-- Screen 1: problem input -->
+    <section class="screen" id="screen-1">
+      <div class="eyebrow">Step 01</div>
+      <h2 class="screen-title">What's the problem?</h2>
+      <p class="screen-desc" id="intro-desc">Describe your problem here.</p>
+      <div class="lang-toggle" aria-label="Language">
+        <button class="lang-btn active" type="button" data-lang="en">English</button>
+        <button class="lang-btn" type="button" data-lang="hi">हिन्दी</button>
+      </div>
+      <div class="error" id="step1-error" role="alert">Please describe your problem in at least a few words.</div>
+      <div class="field">
+        <textarea id="grievance-input" placeholder="e.g. My ration card application has been pending for three months and nobody will tell me why."></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="to-step-2" disabled>Continue</button>
+      </div>
+    </section>
+
+    <!-- Screen 2: clarifying details -->
+    <section class="screen" id="screen-2">
+      <div class="eyebrow">Step 02</div>
+      <h2 class="screen-title">A couple of details</h2>
+      <p class="screen-desc">These make sure the application is addressed and filed correctly.</p>
+
+      <div class="error" id="step2-error" role="alert">Please fill in the required details before continuing.</div>
+      <div class="two-col">
+        <div class="field">
+          <label for="name-input">Your full name *</label>
+          <input type="text" id="name-input" placeholder="As it should appear on the application">
+        </div>
+        <div class="field">
+          <label for="state-input">State *</label>
+          <select id="state-input">
+            <option value="">Select your state</option>
+            <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option><option>Andaman and Nicobar Islands</option><option>Chandigarh</option><option>Dadra and Nagar Haveli and Daman and Diu</option><option>Delhi</option><option>Jammu and Kashmir</option><option>Ladakh</option><option>Lakshadweep</option><option>Puducherry</option>
+          </select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label for="district-input">District *</label>
+          <select id="district-input" disabled><option value="">Select state first</option></select>
+        </div>
+        <div class="field">
+          <label for="address-input">Your address *</label>
+          <input type="text" id="address-input" placeholder="Address to appear on the application">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="phone-input">Contact number *</label>
+          <div class="phone-wrap"><span class="phone-prefix">+91</span><input type="text" id="phone-input" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number"></div>
+        </div>
+        <div class="field">
+          <label for="email-input">Email address *</label>
+          <input type="email" id="email-input" placeholder="you@example.com">
+        </div>
+      </div>
+      <div class="field">
+        <label for="timeframe-input">When did this start? (approximate is fine)</label>
+        <input type="text" id="timeframe-input" placeholder="e.g. mid-May 2026">
+      </div>
+      <div class="field">
+        <label class="check-row" for="bpl-input">
+          <input type="checkbox" id="bpl-input">
+          <span class="check-copy"><strong>I am applying under BPL status</strong><span>We'll reflect this in the filing information. Keep valid BPL proof ready if applicable.</span></span>
+        </label>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="back-to-1">Back</button>
+        <button class="btn btn-primary" id="to-step-3">Generate application</button>
+      </div>
+    </section>
+
+    <!-- Screen 3: generated document -->
+    <section class="screen" id="screen-3">
+      <div id="thinking-state" class="thinking" style="margin-bottom: 24px;">
+        <span class="dot"></span> Drafting your application…
+      </div>
+      <div class="success-note" id="success-note">✓ Your draft application is ready for review.</div>
+      <div class="error" id="api-error" role="alert">We could not generate the draft. Please try again.</div>
+
+      <div class="document-wrap" id="document-wrap" style="display:none;">
+        <div class="document">
+          <div class="seal">PIO<br>USE<br>ONLY</div>
+          <div class="doc-ref mono" id="doc-ref">REF: RTI/2026/000000</div>
+          <div class="doc-date" id="doc-date"></div>
+          <div class="doc-to">To,</div>
+          <div class="doc-authority" id="doc-authority">The Public Information Officer</div>
+
+          <div class="doc-subject">Application under the Right to Information Act, 2005</div>
+
+          <div class="doc-body" id="doc-body"></div>
+        </div>
+
+        <div class="doc-actions">
+          <button class="btn btn-ghost" id="back-to-2">Edit details</button>
+          <button class="btn btn-secondary" id="copy-application">Copy application</button>
+          <button class="btn btn-ghost" id="print-application">Print / Save PDF</button>
+          <button class="btn btn-primary" id="to-step-4">Continue to filing info</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 4: where to send it -->
+    <section class="screen" id="screen-4">
+      <div class="eyebrow">Step 04</div>
+      <h2 class="screen-title">Where to send it</h2>
+      <p class="screen-desc">You can post this or file it in person. Some departments also accept it online.</p>
+
+      <div class="filing-info">
+        <div class="filing-grid">
+          <div class="filing-card"><div class="k">Send to</div><div class="v" id="filing-address">Office of the District Food &amp; Supplies Controller, [District/City]</div></div>
+          <div class="filing-card"><div class="k">Fee</div><div class="v" id="filing-fee">₹10, payable by postal order, demand draft, or in person against a receipt.</div></div>
+          <div class="filing-card"><div class="k">BPL status</div><div class="v" id="filing-bpl">Standard fee information shown.</div></div>
+          <div class="filing-card"><div class="k">Response</div><div class="v">If there's no response in 30 days, you can file a first appeal.</div></div>
+        </div>
+        <ol class="next-steps">
+          <li><strong>Review</strong> the application and correct anything that is inaccurate.</li>
+          <li><strong>Print or copy</strong> the application and keep a copy for your records.</li>
+          <li><strong>Submit</strong> it to the indicated authority using the applicable filing method.</li>
+        </ol>
+        <div class="disclaimer">This tool creates a draft to help you understand and prepare your request. Verify the final authority, address, fee and filing method for your specific case before submission.</div>
+      </div>
+
+      <div class="btn-row" style="margin-top: 24px;">
+        <button class="btn btn-ghost" id="back-to-3">Back to application</button>
+        <button class="btn btn-primary" id="start-over">File another RTI</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  /* ============================================================
+     STATE + NAVIGATION
+     ============================================================ */
+  const state = { grievance: '', name: '', address: '', state: '', district: '', phone: '', email: '', location: '', timeframe: '', bpl: false, language: 'en', category: null, authority: '' };
+
+  function showScreen(n) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + n).classList.add('active');
+    document.querySelectorAll('.step').forEach(s => {
+      const step = parseInt(s.dataset.step);
+      s.classList.toggle('active', step === n);
+      s.classList.toggle('done', step < n);
+    });
+  }
+
+  /* ============================================================
+     MOCK CLASSIFICATION
+     DEMO ONLY: Person A/C can replace this with the real API.
+     The frontend only needs category + authority + document data.
+     ============================================================ */
+  const ROUTING_TABLE = {
+    ration_card: { authority: 'Office of the District Food & Supplies Controller', keyword: ['ration', 'pds', 'food'] },
+    passport:    { authority: 'Regional Passport Office', keyword: ['passport'] },
+    municipal:   { authority: 'Municipal Corporation', keyword: ['property tax', 'municipal', 'ward'] },
+    water:       { authority: 'Water Supply / Jal Board', keyword: ['water'] },
+    scholarship: { authority: 'Directorate of Education', keyword: ['scholarship', 'school', 'college'] },
+  };
+
+  function mockClassify(text) {
+    const lower = text.toLowerCase();
+    for (const [key, val] of Object.entries(ROUTING_TABLE)) {
+      if (val.keyword.some(k => lower.includes(k))) return key;
+    }
+    return 'ration_card'; // fallback for demo purposes only
+  }
+
+  function mockGenerate() {
+    const category = mockClassify(state.grievance);
+    state.category = category;
+    const authority = ROUTING_TABLE[category].authority;
+    state.authority = authority;
+
+    const ref = 'REF: RTI/' + new Date().getFullYear() + '/' + String(Math.floor(Math.random() * 900000) + 100000);
+    document.getElementById('doc-authority').textContent = authority;
+    document.getElementById('doc-ref').textContent = ref;
+    document.getElementById('doc-date').textContent = new Date().toLocaleDateString('en-IN', {
+      day: '2-digit', month: 'long', year: 'numeric'
+    });
+    document.getElementById('filing-address').textContent = authority + ', ' + (state.district || '[District]') + ', ' + (state.state || '[State]');
+
+    document.getElementById('doc-body').innerHTML =
+`I, <span class="doc-placeholder">${escapeHtml(state.name || '[Your name]')}</span>, a citizen of India residing at
+<span class="doc-placeholder">${escapeHtml(state.address || '[Your address]')}</span>, ${escapeHtml(state.district || '[District]')}, ${escapeHtml(state.state || '[State]')}, wish to seek the following information under
+Section 6(1) of the Right to Information Act, 2005:
+
+1. The current status of my request/application concerning:
+   "${escapeHtml(state.grievance)}"
+
+2. The reasons for any delay beyond the prescribed timeline, if applicable.
+
+3. The expected date by which this matter will be resolved.
+
+I enclose the prescribed fee of ₹10. I believe the information sought does not fall
+under any of the exemptions listed in Section 8 of the Act.
+
+Yours faithfully,
+<span class="doc-placeholder">[Signature]</span>
+<span class="doc-placeholder">${escapeHtml(state.name || '[Your name]')}</span>
+Contact: +91 ${escapeHtml(state.phone || '[10-digit number]')} | Email: ${escapeHtml(state.email || '[email]')}
+Date: <span class="doc-placeholder">${escapeHtml(new Date().toLocaleDateString('en-IN'))}</span> | Location: ${escapeHtml(state.district || '[District]')}, ${escapeHtml(state.state || '[State]')}`;
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+    }[char]));
+  }
+function buildDocumentBody(requestPoints) {
+  const feeLine = state.bpl
+    ? 'As a BPL applicant, I am exempt from the application fee under the applicable exemption (proof of BPL status enclosed).'
+    : 'I enclose the prescribed fee of ₹10 for processing this request.';
+
+  return `I, <span class="doc-placeholder">${escapeHtml(state.name)}</span>, a citizen of India residing at
+<span class="doc-placeholder">${escapeHtml(state.address)}</span>, ${escapeHtml(state.district)}, ${escapeHtml(state.state)}, wish to seek the following information under
+Section 6(1) of the Right to Information Act, 2005:
+
+${escapeHtml(requestPoints)}
+
+${feeLine} I declare that the information sought is believed not to fall
+under any of the exemptions listed in Section 8 of the Act.
+
+Yours faithfully,
+<span class="doc-placeholder">[Signature]</span>
+<span class="doc-placeholder">${escapeHtml(state.name)}</span>
+Contact: +91 ${escapeHtml(state.phone)} | Email: ${escapeHtml(state.email)}
+Date: <span class="doc-placeholder">${escapeHtml(new Date().toLocaleDateString('en-IN'))}</span> | Location: ${escapeHtml(state.district)}, ${escapeHtml(state.state)}`;
+}
+const DISTRICTS = {
+  "Andhra Pradesh": [
+    "Alluri Sitharama Raju", "Anakapalli", "Ananthapuramu", "Annamayya",
+    "Bapatla", "Chittoor", "Dr. B.R. Ambedkar Konaseema", "East Godavari",
+    "Eluru", "Guntur", "Kakinada", "Krishna", "Kurnool", "Nandyal",
+    "NTR", "Palnadu", "Parvathipuram Manyam", "Prakasam", "Srikakulam",
+    "Sri Potti Sriramulu Nellore", "Sri Sathya Sai", "Tirupati",
+    "Visakhapatnam", "Vizianagaram", "West Godavari", "YSR Kadapa"
+  ],
+
+  "Arunachal Pradesh": [
+    "Anjaw", "Bichom", "Changlang", "Dibang Valley", "East Kameng",
+    "East Siang", "Itanagar Capital Complex", "Kamle", "Keyi Panyor",
+    "Kra Daadi", "Kurung Kumey", "Lepa Rada", "Lohit", "Longding",
+    "Lower Dibang Valley", "Lower Siang", "Lower Subansiri", "Namsai",
+    "Pakke Kessang", "Papum Pare", "Shi Yomi", "Siang", "Tawang",
+    "Tirap", "Upper Siang", "Upper Subansiri", "West Kameng", "West Siang"
+  ],
+
+  "Assam": [
+    "Baksa", "Bajali", "Barpeta", "Biswanath", "Bongaigaon", "Cachar",
+    "Charaideo", "Darrang", "Dhemaji", "Dhubri", "Dibrugarh",
+    "Dima Hasao", "Goalpara", "Golaghat", "Hailakandi", "Hojai",
+    "Jorhat", "Kamrup", "Kamrup Metropolitan", "Karbi Anglong",
+    "Karimganj", "Kokrajhar", "Lakhimpur", "Majuli", "Morigaon",
+    "Nagaon", "Nalbari", "Sivasagar", "Sonitpur",
+    "South Salmara-Mankachar", "Tamulpur", "Tinsukia", "Udalguri",
+    "West Karbi Anglong"
+  ],
+
+  "Bihar": [
+    "Araria", "Arwal", "Aurangabad", "Banka", "Begusarai", "Bhagalpur",
+    "Bhojpur", "Buxar", "Darbhanga", "East Champaran", "Gaya",
+    "Gopalganj", "Jamui", "Jehanabad", "Kaimur", "Katihar", "Khagaria",
+    "Kishanganj", "Lakhisarai", "Madhepura", "Madhubani", "Munger",
+    "Muzaffarpur", "Nalanda", "Nawada", "Patna", "Purnia", "Rohtas",
+    "Saharsa", "Samastipur", "Saran", "Sheikhpura", "Sheohar",
+    "Sitamarhi", "Siwan", "Supaul", "Vaishali", "West Champaran"
+  ],
+
+  "Chhattisgarh": [
+    "Balod", "Baloda Bazar", "Balrampur-Ramanujganj", "Bastar",
+    "Bemetara", "Bijapur", "Bilaspur", "Dantewada", "Dhamtari", "Durg",
+    "Gariaband", "Gaurela-Pendra-Marwahi", "Janjgir-Champa", "Jashpur",
+    "Kabirdham", "Kanker", "Khairagarh-Chhuikhadan-Gandai", "Kondagaon",
+    "Korba", "Koriya", "Mahasamund",
+    "Manendragarh-Chirmiri-Bharatpur",
+    "Mohla-Manpur-Ambagarh Chowki", "Mungeli", "Narayanpur", "Raigarh",
+    "Raipur", "Rajnandgaon", "Sarangarh-Bilaigarh", "Sukma",
+    "Surajpur", "Surguja"
+  ],
+
+  "Goa": [
+    "North Goa", "South Goa"
+  ],
+
+  "Gujarat": [
+    "Ahmedabad", "Amreli", "Anand", "Aravalli", "Banaskantha", "Bharuch",
+    "Bhavnagar", "Botad", "Chhota Udaipur", "Dahod", "Dang",
+    "Devbhoomi Dwarka", "Gandhinagar", "Gir Somnath", "Jamnagar",
+    "Junagadh", "Kheda", "Kutch", "Mahisagar", "Mehsana", "Morbi",
+    "Narmada", "Navsari", "Panchmahal", "Patan", "Porbandar", "Rajkot",
+    "Sabarkantha", "Surat", "Surendranagar", "Tapi", "Vadodara", "Valsad"
+  ],
+
+  "Haryana": [
+    "Ambala", "Bhiwani", "Charkhi Dadri", "Faridabad", "Fatehabad",
+    "Gurugram", "Hisar", "Jhajjar", "Jind", "Kaithal", "Karnal",
+    "Kurukshetra", "Mahendragarh", "Nuh", "Palwal", "Panchkula",
+    "Panipat", "Rewari", "Rohtak", "Sirsa", "Sonipat", "Yamunanagar"
+  ],
+
+  "Himachal Pradesh": [
+    "Bilaspur", "Chamba", "Hamirpur", "Kangra", "Kinnaur", "Kullu",
+    "Lahaul and Spiti", "Mandi", "Shimla", "Sirmaur", "Solan", "Una"
+  ],
+
+  "Jharkhand": [
+    "Bokaro", "Chatra", "Deoghar", "Dhanbad", "Dumka",
+    "East Singhbhum", "Garhwa", "Giridih", "Godda", "Gumla",
+    "Hazaribagh", "Jamtara", "Khunti", "Koderma", "Latehar",
+    "Lohardaga", "Pakur", "Palamu", "Ramgarh", "Ranchi",
+    "Sahibganj", "Seraikela Kharsawan", "Simdega", "West Singhbhum"
+  ],
+
+  "Karnataka": [
+    "Bagalkot", "Ballari", "Belagavi", "Bengaluru Rural",
+    "Bengaluru Urban", "Bidar", "Chamarajanagar", "Chikkaballapur",
+    "Chikkamagaluru", "Chitradurga", "Dakshina Kannada", "Davanagere",
+    "Dharwad", "Gadag", "Hassan", "Haveri", "Kalaburagi", "Kodagu",
+    "Kolar", "Koppal", "Mandya", "Mysuru", "Raichur", "Ramanagara",
+    "Shivamogga", "Tumakuru", "Udupi", "Uttara Kannada", "Vijayapura",
+    "Yadgir"
+  ],
+
+  "Kerala": [
+    "Alappuzha", "Ernakulam", "Idukki", "Kannur", "Kasaragod", "Kollam",
+    "Kottayam", "Kozhikode", "Malappuram", "Palakkad", "Pathanamthitta",
+    "Thiruvananthapuram", "Thrissur", "Wayanad"
+  ],
+
+  "Madhya Pradesh": [
+    "Agar Malwa", "Alirajpur", "Anuppur", "Ashoknagar", "Balaghat",
+    "Barwani", "Betul", "Bhind", "Bhopal", "Burhanpur", "Chhatarpur",
+    "Chhindwara", "Damoh", "Datia", "Dewas", "Dhar", "Dindori", "Guna",
+    "Gwalior", "Harda", "Indore", "Jabalpur", "Jhabua", "Katni",
+    "Khandwa", "Khargone", "Maihar", "Mandla", "Mandsaur", "Mauganj",
+    "Morena", "Narmadapuram", "Narsinghpur", "Neemuch", "Niwari", "Panna",
+    "Raisen", "Rajgarh", "Ratlam", "Rewa", "Sagar", "Satna", "Sehore",
+    "Seoni", "Shahdol", "Shajapur", "Sheopur", "Shivpuri", "Sidhi",
+    "Singrauli", "Tikamgarh", "Ujjain", "Umaria", "Vidisha"
+  ],
+
+  "Maharashtra": [
+    "Ahmednagar", "Akola", "Amravati", "Beed", "Bhandara", "Buldhana",
+    "Chandrapur", "Chhatrapati Sambhajinagar", "Dhule", "Dharashiv",
+    "Gadchiroli", "Gondia", "Hingoli", "Jalgaon", "Jalna", "Kolhapur",
+    "Latur", "Mumbai City", "Mumbai Suburban", "Nagpur", "Nanded",
+    "Nandurbar", "Nashik", "Palghar", "Parbhani", "Pune", "Raigad",
+    "Ratnagiri", "Sangli", "Satara", "Sindhudurg", "Solapur", "Thane",
+    "Wardha", "Washim", "Yavatmal"
+  ],
+
+  "Manipur": [
+    "Bishnupur", "Chandel", "Churachandpur", "Imphal East", "Imphal West",
+    "Jiribam", "Kakching", "Kamjong", "Kangpokpi", "Noney", "Pherzawl",
+    "Senapati", "Tamenglong", "Tengnoupal", "Thoubal", "Ukhrul"
+  ],
+
+  "Meghalaya": [
+    "East Garo Hills", "East Jaintia Hills", "East Khasi Hills",
+    "Eastern West Khasi Hills", "North Garo Hills", "Ri Bhoi",
+    "South Garo Hills", "South West Garo Hills", "South West Khasi Hills",
+    "West Garo Hills", "West Jaintia Hills", "West Khasi Hills"
+  ],
+
+  "Mizoram": [
+    "Aizawl", "Champhai", "Hnahthial", "Khawzawl", "Kolasib",
+    "Lawngtlai", "Lunglei", "Mamit", "Saitual", "Serchhip", "Siaha"
+  ],
+
+  "Nagaland": [
+    "Chumoukedima", "Dimapur", "Kiphire", "Kohima", "Longleng",
+    "Meluri", "Mokokchung", "Mon", "Niuland", "Noklak", "Peren",
+    "Phek", "Shamator", "Tuensang", "Tseminyu", "Wokha", "Zunheboto"
+  ],
+
+  "Odisha": [
+    "Angul", "Balangir", "Balasore", "Bargarh", "Bhadrak", "Boudh",
+    "Cuttack", "Deogarh", "Dhenkanal", "Gajapati", "Ganjam",
+    "Jagatsinghpur", "Jajpur", "Jharsuguda", "Kalahandi", "Kandhamal",
+    "Kendrapara", "Kendujhar", "Khordha", "Koraput", "Malkangiri",
+    "Mayurbhanj", "Nabarangpur", "Nayagarh", "Nuapada", "Puri",
+    "Rayagada", "Sambalpur", "Subarnapur", "Sundargarh"
+  ],
+
+  "Punjab": [
+    "Amritsar", "Barnala", "Bathinda", "Faridkot", "Fatehgarh Sahib",
+    "Fazilka", "Ferozepur", "Gurdaspur", "Hoshiarpur", "Jalandhar",
+    "Kapurthala", "Ludhiana", "Malerkotla", "Mansa", "Moga", "Muktsar",
+    "Pathankot", "Patiala", "Rupnagar", "Sahibzada Ajit Singh Nagar",
+    "Sangrur", "Shaheed Bhagat Singh Nagar", "Tarn Taran"
+  ],
+
+  "Rajasthan": [
+    "Ajmer", "Alwar", "Anupgarh", "Balotra", "Banswara", "Baran", "Barmer",
+    "Beawar", "Bharatpur", "Bhilwara", "Bikaner", "Bundi", "Chittorgarh",
+    "Churu", "Dausa", "Deeg", "Dholpur", "Didwana-Kuchamana", "Dudu",
+    "Dungarpur", "Ganganagar", "Gangapur City", "Hanumangarh", "Jaipur",
+    "Jaipur Rural", "Jaisalmer", "Jalore", "Jhalawar", "Jhunjhunu",
+    "Jodhpur", "Jodhpur Rural", "Karauli", "Kekri", "Khairthal-Tijara",
+    "Kota", "Kotputli-Behror", "Nagaur", "Neem Ka Thana", "Pali",
+    "Phalodi", "Pratapgarh", "Rajsamand", "Salumbar", "Sanchore",
+    "Sawai Madhopur", "Shahpura", "Sikar", "Sirohi", "Tonk", "Udaipur"
+  ],
+
+  "Sikkim": [
+    "Gangtok", "Gyalshing", "Mangan", "Namchi", "Pakyong", "Soreng"
+  ],
+
+  "Tamil Nadu": [
+    "Ariyalur", "Chengalpattu", "Chennai", "Coimbatore", "Cuddalore",
+    "Dharmapuri", "Dindigul", "Erode", "Kallakurichi", "Kancheepuram",
+    "Karur", "Krishnagiri", "Madurai", "Mayiladuthurai", "Nagapattinam",
+    "Namakkal", "Nilgiris", "Perambalur", "Pudukkottai", "Ramanathapuram",
+    "Ranipet", "Salem", "Sivaganga", "Tenkasi", "Thanjavur", "Theni",
+    "Thoothukudi", "Tiruchirappalli", "Tirunelveli", "Tirupathur",
+    "Tiruppur", "Tiruvallur", "Tiruvannamalai", "Tiruvarur", "Vellore",
+    "Viluppuram", "Virudhunagar"
+  ],
+
+  "Telangana": [
+    "Adilabad", "Bhadradri Kothagudem", "Hanamkonda", "Hyderabad",
+    "Jagtial", "Jangaon", "Jayashankar Bhupalpally", "Jogulamba Gadwal",
+    "Kamareddy", "Karimnagar", "Khammam", "Komaram Bheem Asifabad",
+    "Mahabubabad", "Mahbubnagar", "Mancherial", "Medak",
+    "Medchal-Malkajgiri", "Mulugu", "Nagarkurnool", "Nalgonda",
+    "Narayanpet", "Nirmal", "Nizamabad", "Peddapalli", "Rajanna Sircilla",
+    "Rangareddy", "Sangareddy", "Siddipet", "Suryapet", "Vikarabad",
+    "Wanaparthy", "Warangal", "Yadadri Bhuvanagiri"
+  ],
+
+  "Tripura": [
+    "Dhalai", "Gomati", "Khowai", "North Tripura", "Sepahijala",
+    "South Tripura", "Unakoti", "West Tripura"
+  ],
+
+  "Uttar Pradesh": [
+    "Agra", "Aligarh", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya",
+    "Ayodhya", "Azamgarh", "Baghpat", "Bahraich", "Ballia", "Balrampur",
+    "Banda", "Barabanki", "Bareilly", "Basti", "Bhadohi", "Bijnor",
+    "Budaun", "Bulandshahr", "Chandauli", "Chitrakoot", "Deoria", "Etah",
+    "Etawah", "Farrukhabad", "Fatehpur", "Firozabad",
+    "Gautam Buddha Nagar", "Ghaziabad", "Ghazipur", "Gonda", "Gorakhpur",
+    "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur",
+    "Jhansi", "Kannauj", "Kanpur Dehat", "Kanpur Nagar", "Kasganj",
+    "Kaushambi", "Kheri", "Kushinagar", "Lalitpur", "Lucknow",
+    "Maharajganj", "Mahoba", "Mainpuri", "Mathura", "Mau", "Meerut",
+    "Mirzapur", "Moradabad", "Muzaffarnagar", "Pilibhit", "Pratapgarh",
+    "Prayagraj", "Raebareli", "Rampur", "Saharanpur", "Sambhal",
+    "Sant Kabir Nagar", "Shahjahanpur", "Shamli", "Shravasti",
+    "Siddharthnagar", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao",
+    "Varanasi"
+  ],
+
+  "Uttarakhand": [
+    "Almora", "Bageshwar", "Chamoli", "Champawat", "Dehradun", "Haridwar",
+    "Nainital", "Pauri Garhwal", "Pithoragarh", "Rudraprayag",
+    "Tehri Garhwal", "Udham Singh Nagar", "Uttarkashi"
+  ],
+
+  "West Bengal": [
+    "Alipurduar", "Bankura", "Paschim Bardhaman", "Purba Bardhaman",
+    "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Darjeeling", "Hooghly",
+    "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Kolkata", "Maldah",
+    "Murshidabad", "Nadia", "North 24 Parganas", "Paschim Medinipur",
+    "Purba Medinipur", "South 24 Parganas", "Uttar Dinajpur"
+  ],
+
+  "Andaman and Nicobar Islands": [
+    "Nicobar", "North and Middle Andaman", "South Andaman"
+  ],
+
+  "Chandigarh": [
+    "Chandigarh"
+  ],
+
+  "Dadra and Nagar Haveli and Daman and Diu": [
+    "Dadra and Nagar Haveli", "Daman", "Diu"
+  ],
+
+  "Delhi": [
+    "Central Delhi", "East Delhi", "New Delhi", "North Delhi",
+    "North East Delhi", "North West Delhi", "Shahdara", "South Delhi",
+    "South East Delhi", "South West Delhi", "West Delhi"
+  ],
+
+  "Jammu and Kashmir": [
+    "Anantnag", "Bandipora", "Baramulla", "Budgam", "Doda", "Ganderbal",
+    "Jammu", "Kathua", "Kishtwar", "Kulgam", "Kupwara", "Poonch",
+    "Pulwama", "Rajouri", "Ramban", "Reasi", "Samba", "Shopian",
+    "Srinagar", "Udhampur"
+  ],
+
+  "Ladakh": [
+    "Kargil", "Leh"
+  ],
+
+  "Lakshadweep": [
+    "Agatti", "Amini", "Andrott", "Bitra", "Chetlat", "Kadmat",
+    "Kalpeni", "Kavaratti", "Kiltan", "Minicoy"
+  ],
+
+  "Puducherry": [
+    "Karaikal", "Mahe", "Puducherry", "Yanam"
+  ]
+};
+
+const stateInput = document.getElementById('state-input');
+const districtInput = document.getElementById('district-input');
+
+stateInput.addEventListener('change', () => {
+  const selected = stateInput.value;
+
+  districtInput.innerHTML =
+    '<option value="">Select your district</option>';
+
+  if (!selected) {
+    districtInput.disabled = true;
+    return;
+  }
+
+  districtInput.disabled = false;
+
+  DISTRICTS[selected].forEach(district => {
+    const option = document.createElement('option');
+    option.value = district;
+    option.textContent = district;
+    districtInput.appendChild(option);
+  });
+});
+
+  /* ============================================================
+     EVENT WIRING
+     ============================================================ */
+  document.getElementById('to-step-0-start').addEventListener('click', () => showScreen(1));
+  const grievanceInput = document.getElementById('grievance-input');
+  const toStep2 = document.getElementById('to-step-2');
+
+  grievanceInput.addEventListener('input', () => {
+    toStep2.disabled = grievanceInput.value.trim().length < 10;
+    document.getElementById('step1-error').classList.remove('show');
+  });
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.language = btn.dataset.lang;
+      if (state.language === 'hi') {
+        document.getElementById('intro-desc').textContent =
+          'अपनी समस्या को सामान्य भाषा में बताएं। कानूनी भाषा जानना जरूरी नहीं है।';
+      } else {
+        document.getElementById('intro-desc').textContent =
+          "Describe your problem clearly. No legal language needed — that's what this does for you.";
+      }
+    });
+  });
+
+  toStep2.addEventListener('click', () => {
+    state.grievance = grievanceInput.value.trim();
+    showScreen(2);
+  });
+
+  document.getElementById('back-to-1').addEventListener('click', () => showScreen(1));
+  document.getElementById('back-to-2').addEventListener('click', () => showScreen(2));
+
+  document.getElementById('to-step-3').addEventListener('click', () => {
+    state.name = document.getElementById('name-input').value.trim();
+    state.address = document.getElementById('address-input').value.trim();
+    state.state = stateInput.value;
+    state.district = districtInput.value;
+    state.phone = document.getElementById('phone-input').value.trim();
+    state.email = document.getElementById('email-input').value.trim();
+    state.timeframe = document.getElementById('timeframe-input').value.trim();
+    state.bpl = document.getElementById('bpl-input').checked;
+    state.location = state.district + ', ' + state.state;
+
+    if (!state.name || !state.address || !state.state || !state.district || !state.phone || !state.email) {
+      document.getElementById('step2-error').textContent =
+        'Please complete your name, address, state, district, contact number and email.';
+      document.getElementById('step2-error').classList.add('show');
+      return;
+    }
+    if (!/^\d{10}$/.test(state.phone)) {
+      document.getElementById('step2-error').textContent = 'Please enter a valid 10-digit contact number.';
+      document.getElementById('step2-error').classList.add('show');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)) {
+      document.getElementById('step2-error').textContent = 'Please enter a valid email address.';
+      document.getElementById('step2-error').classList.add('show');
+      return;
+    }
+    document.getElementById('step2-error').classList.remove('show');
+
+    showScreen(3);
+    document.getElementById('thinking-state').style.display = 'flex';
+    document.getElementById('success-note').classList.remove('show');
+    document.getElementById('api-error').classList.remove('show');
+    document.getElementById('document-wrap').style.display = 'none';
+
+       fetch('http://localhost:3000/api/generate-rti', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        grievance: state.grievance,
+        name: state.name,
+        address: state.address,
+        contact: state.phone + (state.email ? ' / ' + state.email : ''),
+        location: state.location,
+        timeframe: state.timeframe,
+        bpl: state.bpl,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('thinking-state').style.display = 'none';
+
+        if (data.error) throw new Error(data.detail || data.error);
+
+        if (data.needsClarification) {
+          document.getElementById('api-error').textContent =
+            'A couple more details are needed (' + data.missingFields.join(', ') + '). Please go back and check.';
+          document.getElementById('api-error').classList.add('show');
+          return;
+        }
+
+        state.category = data.category;
+        state.authority = data.authority;
+        state.filingNote = data.filingNote;
+
+        document.getElementById('doc-authority').textContent = data.authority;
+        document.getElementById('doc-ref').textContent = 'REF: ' + data.referenceNumber;
+        document.getElementById('doc-date').textContent = new Date().toLocaleDateString('en-IN', {
+          day: '2-digit', month: 'long', year: 'numeric'
+        });
+        document.getElementById('filing-address').textContent =
+          data.authority + ', ' + (state.district || '[District]') + ', ' + (state.state || '[State]');
+        document.getElementById('doc-body').innerHTML = buildDocumentBody(data.requestPoints);
+
+        document.getElementById('document-wrap').style.display = 'block';
+        document.getElementById('success-note').classList.add('show');
+      })
+      .catch(err => {
+        document.getElementById('thinking-state').style.display = 'none';
+        document.getElementById('api-error').textContent =
+          'We could not generate the draft. Check that the backend server is running and try again.';
+        document.getElementById('api-error').classList.add('show');
+        console.error(err);
+      });
+});
+ 
+
+  document.getElementById('to-step-4').addEventListener('click', () => {
+    const fee = document.getElementById('filing-fee');
+    const bpl = document.getElementById('filing-bpl');
+    if (state.bpl) {
+      fee.textContent = 'BPL applicants are exempt from the fee with valid proof of BPL status.';
+      bpl.textContent = 'BPL selected — keep valid proof ready when filing.';
+    } else {
+      fee.textContent = '₹10, payable by postal order, demand draft, or in person against a receipt.';
+      bpl.textContent = 'Standard fee information shown. If you qualify for BPL exemption, select it in Step 2.';
+    }
+    showScreen(4);
+  });
+
+  document.getElementById('back-to-3').addEventListener('click', () => showScreen(3));
+
+  document.getElementById('copy-application').addEventListener('click', async () => {
+    const text = document.getElementById('doc-body').innerText;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById('copy-application');
+      const original = btn.textContent;
+      btn.textContent = 'Copied ✓';
+      setTimeout(() => btn.textContent = original, 1400);
+    } catch {
+      alert('Copy is unavailable in this browser. You can use Print / Save PDF instead.');
+    }
+  });
+
+  document.getElementById('print-application').addEventListener('click', () => window.print());
+
+  document.getElementById('start-over').addEventListener('click', () => {
+    state.grievance = state.name = state.address = state.state = state.district = state.phone = state.email = state.location = state.timeframe = '';
+    state.bpl = false;
+    grievanceInput.value = '';
+    document.getElementById('name-input').value = '';
+    document.getElementById('address-input').value = '';
+    stateInput.value = '';
+    districtInput.innerHTML = '<option value="">Select state first</option>';
+    districtInput.disabled = true;
+    document.getElementById('phone-input').value = '';
+    document.getElementById('email-input').value = '';
+    document.getElementById('timeframe-input').value = '';
+    document.getElementById('bpl-input').checked = false;
+    document.getElementById('step1-error').classList.remove('show');
+    document.getElementById('step2-error').classList.remove('show');
+    document.getElementById('success-note').classList.remove('show');
+    toStep2.disabled = true;
+    showScreen(1);
+  });
+</script>
+
+</body>
+</html>
