@@ -16,7 +16,7 @@ This directly implements one of PS3's own listed directions: *"RTI Drafting Agen
 
 ## Demo
 
-📹 **Demo video:** [link here]
+📹 **Demo video:** https://youtu.be/g14lNNiibJ4?si=RiWCEVc7WwwhDQ9I
 🌐 **Live prototype:** [link here, if deployed]
 
 ## How It Works
