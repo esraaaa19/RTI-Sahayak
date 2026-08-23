@@ -1,0 +1,17 @@
+{
+  "name": "rti-sahayak-backend",
+  "version": "1.0.0",
+  "description": "Backend proxy for RTI Sahayak — classify + generate RTI applications",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  }
+}
